@@ -53,8 +53,15 @@ function processSRT(text) {
         splitSubs[i].end = splitSubs[i+1].start;
     }
 
-    // 3단계: SRT 텍스트로 재조립
-    return splitSubs.map((sub, i) => `${i + 1}\n${sub.start} --> ${sub.end}\n${sub.text}`).join('\n\n');
+    // 3단계: 문장 끝 마침표(.) 제거 및 SRT 텍스트로 재조립
+    return splitSubs.map((sub, i) => {
+        let finalText = sub.text;
+        // 텍스트의 맨 끝이 마침표('.')로 끝나면 제거
+        if (finalText.endsWith('.')) {
+            finalText = finalText.slice(0, -1);
+        }
+        return `${i + 1}\n${sub.start} --> ${sub.end}\n${finalText}`;
+    }).join('\n\n');
 }
 
 // --- 유틸리티 함수 ---
