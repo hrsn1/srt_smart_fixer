@@ -10,15 +10,27 @@ document.getElementById('processBtn').addEventListener('click', function() {
     reader.onload = function(e) {
         const content = e.target.result;
         const processedContent = processSRT(content);
-        downloadFile(processedContent, file.name.replace('.srt', '_fixed.srt'));
+        if (processedContent) {
+            downloadFile(processedContent, file.name.replace('.srt', '_fixed.srt'));
+        }
     };
     reader.readAsText(file);
 });
 
 // --- 핵심 처리 로직 ---
 function processSRT(text) {
+    // 0. 눈에 보이지 않는 줄바꿈 문자 통일 (윈도우 \r\n -> 유닉스 \n)
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    
     const pattern = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:(?!\n\n)[\s\S])*)/g;
     let matches = [...text.matchAll(pattern)];
+    
+    // 파일을 아예 인식하지 못했을 경우 알림창 띄우기
+    if (matches.length === 0) {
+        alert("자막을 인식하지 못했습니다. 정상적인 SRT 파일인지 확인해 주세요.");
+        return "";
+    }
+
     let parsedSubs = matches.map(m => ({ start: m[2], end: m[3], text: m[4].replace(/\n/g, ' ').trim() }));
 
     let splitSubs = [];
