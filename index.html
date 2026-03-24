@@ -15,8 +15,8 @@
         /* 슬라이더 마커용 스타일 */
         .slider-wrapper { position: relative; width: 85%; margin: 0 auto; }
         .marker { position: absolute; top: 25px; transform: translateX(-50%); text-align: center; font-size: 0.85em; font-weight: bold; line-height: 1.2; }
-        .marker-short { left: 6.66%; color: #e84118; } /* 12자 위치: (12-10)/30 * 100 */
-        .marker-long { left: 46.66%; color: #0097e6; } /* 24자 위치: (24-10)/30 * 100 */
+        .marker-short { left: 28%; color: #e84118; } /* 12자 위치: (12-5)/25 * 100 */
+        .marker-long { left: 76%; color: #0097e6; } /* 24자 위치: (24-5)/25 * 100 */
     </style>
 </head>
 <body>
@@ -30,7 +30,7 @@
             <label for="lengthSlider"><b>자막 분할 기준:</b> <span id="lengthValue" style="color:#007BFF; font-weight:bold; font-size:1.2em;">24</span>자</label><br>
             
             <div class="slider-wrapper">
-                <input type="range" id="lengthSlider" min="10" max="40" value="24" style="width: 100%; margin-top: 10px; cursor: pointer;">
+                <input type="range" id="lengthSlider" min="5" max="30" value="24" style="width: 100%; margin-top: 10px; cursor: pointer;">
                 
                 <div class="marker marker-short">
                     ▲<br>숏폼 추천<br><span style="font-size: 0.8em; font-weight: normal;">(12자)</span>
