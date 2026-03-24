@@ -1,15 +1,22 @@
+// 슬라이더 값 실시간 표시
+document.getElementById('lengthSlider').addEventListener('input', function() {
+    document.getElementById('lengthValue').textContent = this.value;
+});
+
 document.getElementById('fileInput').addEventListener('change', function() {
     document.getElementById('processBtn').disabled = !this.files.length;
 });
 
 document.getElementById('processBtn').addEventListener('click', function() {
     const file = document.getElementById('fileInput').files[0];
+    const targetLength = parseInt(document.getElementById('lengthSlider').value, 10); // 슬라이더 값 가져오기
+    
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
         const content = e.target.result;
-        const processedContent = processSRT(content);
+        const processedContent = processSRT(content, targetLength); // 가져온 값을 함수로 넘김
         if (processedContent) {
             downloadFile(processedContent, file.name.replace('.srt', '_fixed.srt'));
         }
@@ -18,32 +25,31 @@ document.getElementById('processBtn').addEventListener('click', function() {
 });
 
 // --- 핵심 처리 로직 ---
-function processSRT(text) {
-    // 0. 눈에 보이지 않는 줄바꿈 문자 통일 (윈도우 \r\n -> 유닉스 \n)
+function processSRT(text, targetLength) {
+    // 최대 허용 길이는 타겟 길이에서 +6자로 넉넉하게 잡음 (예: 24 -> 30)
+    const maxLength = targetLength + 6; 
+
     text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     
     const pattern = /(\d+)\n(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})\n((?:(?!\n\n)[\s\S])*)/g;
     let matches = [...text.matchAll(pattern)];
     
-    // 파일을 아예 인식하지 못했을 경우 알림창 띄우기
     if (matches.length === 0) {
         alert("자막을 인식하지 못했습니다. 정상적인 SRT 파일인지 확인해 주세요.");
         return "";
     }
 
     let parsedSubs = matches.map(m => ({ start: m[2], end: m[3], text: m[4].replace(/\n/g, ' ').trim() }));
-
     let splitSubs = [];
     
-    // 1단계: 문맥 기반 분할
     parsedSubs.forEach(sub => {
         let currentText = sub.text;
         let currentStartMs = timeToMs(sub.start);
         let totalDuration = timeToMs(sub.end) - currentStartMs;
         let totalLength = currentText.length;
 
-        while (currentText.length > 30) {
-            let splitIdx = findBestSplitIndex(currentText, 24, 30);
+        while (currentText.length > maxLength) {
+            let splitIdx = findBestSplitIndex(currentText, targetLength, maxLength);
             if (splitIdx === -1) break;
 
             let part1 = currentText.substring(0, splitIdx).trim();
@@ -60,15 +66,12 @@ function processSRT(text) {
         }
     });
 
-    // 2단계: 타임코드 후방 연결 (앞 자막의 끝 시간을 뒷 자막의 시작 시간에 맞춤)
     for (let i = 0; i < splitSubs.length - 1; i++) {
         splitSubs[i].end = splitSubs[i+1].start;
     }
 
-    // 3단계: 문장 끝 마침표(.) 제거 및 SRT 텍스트로 재조립
     return splitSubs.map((sub, i) => {
         let finalText = sub.text;
-        // 텍스트의 맨 끝이 마침표('.')로 끝나면 제거
         if (finalText.endsWith('.')) {
             finalText = finalText.slice(0, -1);
         }
@@ -94,7 +97,11 @@ function findBestSplitIndex(text, target, maxLen) {
     let minPenalty = Infinity;
     let bestSpace = -1;
     
-    for (let i = 10; i <= target + 8 && i < text.length; i++) {
+    // 타겟 길이에 맞춰 띄어쓰기를 탐색할 범위 조정 (너무 앞부분에서 잘리는 것 방지)
+    let minSearch = Math.max(5, target - 12); 
+    let maxSearch = Math.min(text.length, target + 6);
+
+    for (let i = minSearch; i <= maxSearch; i++) {
         if (text[i] !== ' ') continue;
         
         let penalty = Math.abs(i - target);
@@ -110,6 +117,8 @@ function findBestSplitIndex(text, target, maxLen) {
             bestSpace = i;
         }
     }
+    
+    // 적절한 곳을 못 찾았다면 타겟 길이에 가장 가까운 띄어쓰기 선택
     return bestSpace !== -1 ? bestSpace : text.substring(0, target).lastIndexOf(' ');
 }
 
