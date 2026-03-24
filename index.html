@@ -10,7 +10,13 @@
         button { padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        .slider-container { margin: 25px 0; background-color: #f8f9fa; padding: 15px; border-radius: 8px; }
+        .slider-container { margin: 25px 0; background-color: #f8f9fa; padding: 15px 15px 40px 15px; border-radius: 8px; }
+        
+        /* 슬라이더 마커용 스타일 */
+        .slider-wrapper { position: relative; width: 85%; margin: 0 auto; }
+        .marker { position: absolute; top: 25px; transform: translateX(-50%); text-align: center; font-size: 0.85em; font-weight: bold; line-height: 1.2; }
+        .marker-short { left: 6.66%; color: #e84118; } /* 12자 위치: (12-10)/30 * 100 */
+        .marker-long { left: 46.66%; color: #0097e6; } /* 24자 위치: (24-10)/30 * 100 */
     </style>
 </head>
 <body>
@@ -21,9 +27,22 @@
     
     <div class="box">
         <div class="slider-container">
-            <label for="lengthSlider"><b>자막 분할 기준 글자 수:</b> <span id="lengthValue" style="color:#007BFF; font-weight:bold; font-size:1.2em;">24</span>자</label><br>
-            <input type="range" id="lengthSlider" min="15" max="45" value="24" style="width: 80%; margin-top: 10px; cursor: pointer;"><br>
-            <span style="font-size: 0.85em; color: #666;">* 설정한 기준 글자 수를 바탕으로, 문맥이 끊기지 않는 곳(최대 +6자 허용)에서 유연하게 잘립니다.</span>
+            <label for="lengthSlider"><b>자막 분할 기준:</b> <span id="lengthValue" style="color:#007BFF; font-weight:bold; font-size:1.2em;">24</span>자</label><br>
+            
+            <div class="slider-wrapper">
+                <input type="range" id="lengthSlider" min="10" max="40" value="24" style="width: 100%; margin-top: 10px; cursor: pointer;">
+                
+                <div class="marker marker-short">
+                    ▲<br>숏폼 추천<br><span style="font-size: 0.8em; font-weight: normal;">(12자)</span>
+                </div>
+                <div class="marker marker-long">
+                    ▲<br>롱폼 추천<br><span style="font-size: 0.8em; font-weight: normal;">(24자)</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 45px; font-size: 0.85em; color: #666; text-align: left;">
+                * 설정한 기준 글자 수를 바탕으로, 문맥이 끊기지 않는 곳에서 유연하게 잘립니다.
+            </div>
         </div>
 
         <input type="file" id="fileInput" accept=".srt">
