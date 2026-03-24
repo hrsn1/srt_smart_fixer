@@ -10,14 +10,22 @@
         button { padding: 10px 20px; font-size: 16px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #0056b3; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        .slider-container { margin: 25px 0; background-color: #f8f9fa; padding: 15px; border-radius: 8px; }
     </style>
 </head>
 <body>
     <h2>🎬 스마트 자막 변환기</h2>
-    <p>1. 문맥에 맞게 긴 자막을 자동으로 나눕니다 (약 24자 기준).<br>
-       2. 자막 간의 타임코드를 빈틈없이 연결합니다 (뒷 자막 시작 시간에 맞춤).</p>
+    <p>1. 문맥에 맞게 긴 자막을 자동으로 나눕니다.<br>
+       2. 자막 간의 타임코드를 빈틈없이 연결합니다.<br>
+       3. 자막 끝에 있는 마침표(.)를 깔끔하게 제거합니다.</p>
     
     <div class="box">
+        <div class="slider-container">
+            <label for="lengthSlider"><b>자막 분할 기준 글자 수:</b> <span id="lengthValue" style="color:#007BFF; font-weight:bold; font-size:1.2em;">24</span>자</label><br>
+            <input type="range" id="lengthSlider" min="15" max="45" value="24" style="width: 80%; margin-top: 10px; cursor: pointer;"><br>
+            <span style="font-size: 0.85em; color: #666;">* 설정한 기준 글자 수를 바탕으로, 문맥이 끊기지 않는 곳(최대 +6자 허용)에서 유연하게 잘립니다.</span>
+        </div>
+
         <input type="file" id="fileInput" accept=".srt">
         <br><br>
         <button id="processBtn" disabled>자막 변환하기</button>
